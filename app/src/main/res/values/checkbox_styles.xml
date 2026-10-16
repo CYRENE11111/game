@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 信息修改界面：爱好复选框三种状态 -->
+    <style name="HobbyCheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:buttonTint">@color/hobby_check_tint</item>
+    </style>
+
+    <!-- 信息修改界面：性别单选按钮 -->
+    <style name="GenderRadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:buttonTint">@color/hobby_check_tint</item>
+    </style>
+
+</resources>

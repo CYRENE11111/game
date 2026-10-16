@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- 浅蓝色圆底 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M48,0 A48,48 0 1,1 47.99,0 Z" />
+    <!-- 人物剪影 -->
+    <path
+        android:fillColor="#1B5E93"
+        android:pathData="M48,28 m-13,0 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0 Z" />
+    <path
+        android:fillColor="#1B5E93"
+        android:pathData="M24,84 C24,66 34.5,56 48,56 C61.5,56 72,66 72,84 Z" />
+</vector>

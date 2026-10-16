@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">李飞乐2024110516</string>
+
+    <!-- 主界面 -->
+    <string name="main_subtitle">Android 实验四 · 翻牌配对游戏</string>
+    <string name="welcome_player">你好，%1$s</string>
+    <string name="label_name">姓名：</string>
+    <string name="label_gender">性别：</string>
+    <string name="label_student_id">学号：</string>
+    <string name="label_phone">电话：</string>
+    <string name="label_email">邮件地址：</string>
+    <string name="label_hobbies">爱好：</string>
+    <string name="label_high_score">游戏最高分：</string>
+    <string name="label_avatar">头像</string>
+    <string name="high_score_value">%1$d 分</string>
+    <string name="btn_edit_info">修改个人信息</string>
+    <string name="btn_play_game">翻牌游戏</string>
+
+    <!-- 信息修改界面 -->
+    <string name="form_title">信息修改</string>
+    <string name="hint_name">请输入姓名</string>
+    <string name="hint_student_id">请输入学号</string>
+    <string name="hint_phone">请输入 11 位手机号</string>
+    <string name="hint_email">请输入电子邮箱地址</string>
+    <string name="gender_male">男</string>
+    <string name="gender_female">女</string>
+    <string name="hobby_travel">旅游</string>
+    <string name="hobby_reading">阅读</string>
+    <string name="hobby_game">游戏</string>
+    <string name="hobby_shopping">购物</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_cancel">取消</string>
+    <string name="toast_name_empty">姓名不能为空</string>
+    <string name="toast_student_id_empty">学号不能为空</string>
+    <string name="toast_phone_invalid">请输入正确的手机号</string>
+    <string name="toast_email_invalid">请输入正确的电子邮箱地址</string>
+    <string name="toast_saved">个人信息已修改</string>
+
+    <!-- 翻牌游戏界面 -->
+    <string name="game_title">翻牌游戏</string>
+    <string name="label_score">得分：</string>
+    <string name="label_best">最高分 %1$d</string>
+    <string name="btn_restart">重置游戏</string>
+    <string name="btn_exit">退出</string>
+    <string name="remaining_value">剩余 %1$d 张</string>
+    <string name="game_tip">点击卡牌翻开，点数相同的两张牌即可配对成功。配对成功 +16 分，配对失败 -2 分，每翻一张牌 -1 分。</string>
+    <string name="game_status_ready">点击任意一张牌开始游戏</string>
+    <string name="game_status_pick_one">已翻开一张牌，请再选一张进行配对</string>
+    <string name="game_status_matched">配对成功！</string>
+    <string name="game_status_mismatch">配对失败，请重新选择</string>
+    <string name="game_status_win">全部配对完成，本局得分 %1$d 分</string>
+    <string name="game_status_win_record">全部配对完成，本局得分 %1$d 分，刷新了最高分！</string>
+    <string name="game_status_restart">已重新开始一局游戏</string>
+</resources>

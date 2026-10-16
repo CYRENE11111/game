@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- 扑克牌牌背 / 牌面配色 -->
+    <color name="card_back_bg">#FF1B5E93</color>
+    <color name="card_back_inner">#FFE3F2FD</color>
+    <color name="card_back_grid">#FF64B5F6</color>
+    <color name="card_back_mark">#FF0D47A1</color>
+
+    <!-- 花色颜色：红色（红桃 / 方块）与黑色（黑桃 / 梅花） -->
+    <color name="suit_red">#FFD32F2F</color>
+    <color name="suit_black">#FF263238</color>
+</resources>
