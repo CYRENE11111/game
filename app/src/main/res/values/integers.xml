@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 竖屏：4 列 × 6 行，共 24 张牌（8 组三张同点数） -->
+    <integer name="game_card_count">24</integer>
+    <integer name="game_card_columns">4</integer>
+</resources>

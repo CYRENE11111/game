@@ -31,18 +31,13 @@ class Card(
     fun isRedSuit(): Boolean = suit == "♥" || suit == "♦"
 
     /**
-     * 与另一张牌比较：点数相同得 4 分（配对成功），花色相同得 1 分，否则 0 分。
+     * 三张牌配对的规则：当传入的两张牌与当前牌点数都相同时（三张同点数），
+     * 视为配对成功并返回 4 分；否则返回 0 分。
+     *
+     * @param otherCards 另外两张已翻开的牌。
      */
     fun match(otherCards: Array<Card>): Int {
-        var score = 0
-        if (otherCards.size == 1) {
-            val otherCard = otherCards[0]
-            if (otherCard.rank == rank) {
-                score = 4
-            } else if (otherCard.suit == suit) {
-                score = 1
-            }
-        }
-        return score
+        if (otherCards.size < 2) return 0
+        return if (otherCards.all { it.rank == rank }) 4 else 0
     }
 }

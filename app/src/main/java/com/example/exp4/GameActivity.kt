@@ -6,10 +6,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.exp4.model.Card
 import com.example.exp4.model.CardMatchingGame
 import com.example.exp4.model.PlayerRepository
-import com.example.exp4.view.CardBoardView
-import com.example.exp4.view.CardView
+import com.example.exp4.view.CardAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 
@@ -19,30 +21,28 @@ import com.google.android.material.button.MaterialButton
  * 职责：
  * 1. 接受用户交互（点击卡牌、“重置游戏”、“退出”）；
  * 2. 调用游戏模型 [CardMatchingGame] 处理游戏逻辑；
- * 3. 把模型的最新状态同步到界面（View）上；
+ * 3. 通过 [CardAdapter] 把模型的最新状态同步到 RecyclerView 上；
  * 4. 可以重新开始一局游戏（重新发牌、清零分数）。
  *
- * 界面参照《翻牌游戏.pdf》：4 列 × 4 行共 16 张牌，底部为“得分”与“重置游戏 / 退出”。
+ * 牌数由资源限定符决定：竖屏 24 张（4 列 × 6 行），横屏 18 张（6 列 × 3 行），
+ * 因此旋转屏幕后会自动使用与当前方向匹配的牌数。
  */
-class GameActivity : AppCompatActivity() {
-
-    companion object {
-        /** 一局游戏的牌数：4 列 × 4 行 = 16 张（8 对）。 */
-        private const val CARD_COUNT = 16
-        private const val COLUMNS = 4
-    }
+class GameActivity : AppCompatActivity(), CardAdapter.OnCardClickListener {
 
     private lateinit var game: CardMatchingGame
-    private lateinit var board: CardBoardView
+    private lateinit var adapter: CardAdapter
+    private lateinit var rvCards: RecyclerView
     private lateinit var tvScore: TextView
     private lateinit var tvBest: TextView
     private lateinit var tvRemaining: TextView
     private lateinit var tvStatus: TextView
 
-    private val cardViews = mutableListOf<CardView>()
-
     /** 动画进行中时锁定交互，避免牌面状态错乱。 */
     private var locked = false
+
+    /** 当前方向下的牌数与列数（values / values-land 中的整数资源）。 */
+    private val cardCount: Int get() = resources.getInteger(R.integer.game_card_count)
+    private val columns: Int get() = resources.getInteger(R.integer.game_card_columns)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,14 +58,14 @@ class GameActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbarGame)
         toolbar.subtitle = PlayerRepository.player.name
 
-        board = findViewById(R.id.board)
+        rvCards = findViewById(R.id.rvCards)
         tvScore = findViewById(R.id.tvScore)
         tvBest = findViewById(R.id.tvBest)
         tvRemaining = findViewById(R.id.tvRemaining)
         tvStatus = findViewById(R.id.tvStatus)
 
-        game = CardMatchingGame(CARD_COUNT)
-        buildBoard()
+        game = CardMatchingGame(cardCount)
+        setupRecyclerView()
 
         findViewById<MaterialButton>(R.id.btnRestart).setOnClickListener { restartGame() }
         findViewById<MaterialButton>(R.id.btnExit).setOnClickListener { finish() }
@@ -74,55 +74,52 @@ class GameActivity : AppCompatActivity() {
         tvStatus.text = getString(R.string.game_status_ready)
     }
 
-    /** 根据模型的牌数创建界面上的卡牌控件。 */
-    private fun buildBoard() {
-        board.removeAllViews()
-        cardViews.clear()
-        board.columns = COLUMNS
-        board.rows = CARD_COUNT / COLUMNS
-
-        for (index in 0 until game.cardCount) {
-            val card = game.cardAtIndex(index)
-            val cardView = CardView(this)
-            cardView.bind(card.suitString(), card.rankString(), card.isRedSuit())
-            cardView.render(false, false, false)      // 初始全部背面朝上
-            cardView.setOnClickListener { onCardClicked(index) }
-            board.addView(cardView)
-            cardViews.add(cardView)
-        }
+    /** 创建 RecyclerView：网格布局 + 卡牌适配器。 */
+    private fun setupRecyclerView() {
+        adapter = CardAdapter(this)
+        rvCards.layoutManager = GridLayoutManager(this, columns)
+        rvCards.adapter = adapter
+        // 翻牌 / 配对动画由 CardView 自己完成，关闭默认的列表动画避免相互干扰
+        rvCards.itemAnimator = null
+        rvCards.setHasFixedSize(true)
+        adapter.submitCards(cardsOfGame())
     }
 
-    /**
-     * 用户点击一张牌：先交给模型处理，再把模型结果同步到界面。
-     */
-    private fun onCardClicked(index: Int) {
-        if (locked || index !in cardViews.indices) return
+    private fun cardsOfGame(): List<Card> =
+        (0 until game.cardCount).map { game.cardAtIndex(it) }
 
-        val card = game.cardAtIndex(index)
+    /**
+     * 用户点击一张牌：先交给模型处理，再通过适配器把模型结果同步到界面。
+     */
+    override fun onCardClicked(position: Int) {
+        if (locked || position !in 0 until game.cardCount) return
+
+        val card = game.cardAtIndex(position)
         if (card.isMatched) return                    // 已配对的牌不可再选
 
-        // 记录操作前的状态，用来判断这次是配对成功还是失败
-        val wasChosen = card.isChosen
-        val hadPrevChosen = hasOtherChosenCard(index)
-
-        // 交给模型处理
-        game.chooseCardAtIndex(index)
-
-        if (wasChosen) {
-            // 取消选择：直接翻回背面
-            syncCard(index)
+        // 取消选择：直接翻回背面
+        if (card.isChosen) {
+            game.chooseCardAtIndex(position)
+            adapter.updateCard(position)
             updateStatus()
             updateScoreAndRemaining()
             return
         }
 
-        val isMatched = card.isMatched
-        val isMismatch = hadPrevChosen && !isMatched && !hasOtherChosenCard(index)
+        // 记录操作前已翻开的牌，用来判断这次是配对成功还是失败
+        val chosenBefore = (0 until game.cardCount).filter {
+            val c = game.cardAtIndex(it)
+            c.isChosen && !c.isMatched
+        }
+
+        // 交给模型处理
+        game.chooseCardAtIndex(position)
 
         when {
-            isMatched -> {
-                // 配对成功：两张牌翻开并高亮
-                refreshMatchedCards(index)
+            card.isMatched -> {
+                // 三张牌配对成功：三张牌一起播放高亮动画
+                adapter.updateCard(position)
+                chosenBefore.forEach { adapter.updateCard(it) }
                 updateStatus(matched = true)
                 updateScoreAndRemaining()
                 if (game.isGameOver()) {
@@ -130,17 +127,15 @@ class GameActivity : AppCompatActivity() {
                 }
             }
 
-            isMismatch -> {
-                // 配对失败：先把两张牌都翻开让玩家看到，再一起翻回去
+            chosenBefore.size >= CardMatchingGame.GROUP_SIZE - 1 -> {
+                // 配对失败：先把三张牌都翻开让玩家看到，再一起翻回去
                 locked = true
-                cardViews[index].flipUp(selected = false, matched = false)
+                adapter.setRevealedPositions((chosenBefore + position).toSet())
                 updateStatus(mismatch = true)
                 updateScoreAndRemaining()
-                cardViews[index].postDelayed({
+                rvCards.postDelayed({
                     // 依据模型的最终状态重建视图，保证界面与模型一致
-                    for (i in cardViews.indices) {
-                        syncCard(i)
-                    }
+                    adapter.setRevealedPositions(emptySet())
                     locked = false
                     updateStatus()
                 }, 900L)
@@ -148,49 +143,15 @@ class GameActivity : AppCompatActivity() {
 
             else -> {
                 // 普通翻开一张牌：分数 -1
-                syncCard(index)
+                adapter.updateCard(position)
                 updateStatus()
                 updateScoreAndRemaining()
             }
         }
     }
 
-    /** 配对成功的两张牌一起播放高亮动画。 */
-    private fun refreshMatchedCards(justClicked: Int) {
-        for (i in cardViews.indices) {
-            val card = game.cardAtIndex(i)
-            if (card.isMatched && cardViews[i].isFaceUp) {
-                cardViews[i].playMatched(selected = false)
-            }
-        }
-        val view = cardViews[justClicked]
-        view.flipUp(selected = false, matched = false) {
-            view.playMatched(selected = false)
-        }
-    }
-
-    /** 除 index 之外，是否还有一张已翻开但尚未配对的牌。 */
-    private fun hasOtherChosenCard(index: Int): Boolean {
-        for (i in 0 until game.cardCount) {
-            if (i == index) continue
-            val c = game.cardAtIndex(i)
-            if (c.isChosen && !c.isMatched) return true
-        }
-        return false
-    }
-
-    /** 把某一张牌同步成模型的当前状态（不带翻牌动画）。 */
-    private fun syncCard(index: Int) {
-        val card = game.cardAtIndex(index)
-        val view = cardViews[index]
-        view.render(card.isChosen || card.isMatched, card.isChosen, card.isMatched)
-    }
-
-    /** 同步所有牌、分数、最高分与剩余张数。 */
+    /** 同步分数、最高分与剩余张数。 */
     private fun refresh() {
-        for (i in cardViews.indices) {
-            syncCard(i)
-        }
         tvScore.text = game.score.toString()
         tvBest.text = getString(R.string.label_best, PlayerRepository.player.highScore)
         tvRemaining.text = getString(R.string.remaining_value, game.unmatchedCount())
@@ -208,10 +169,10 @@ class GameActivity : AppCompatActivity() {
         tvStatus.text = when {
             matched -> getString(R.string.game_status_matched)
             mismatch -> getString(R.string.game_status_mismatch)
-            else -> if (game.unmatchedCount() == game.cardCount) {
-                getString(R.string.game_status_ready)
-            } else {
-                getString(R.string.game_status_pick_one)
+            else -> when (game.chosenCardCount()) {
+                0 -> getString(R.string.game_status_ready)
+                1 -> getString(R.string.game_status_pick_one)
+                else -> getString(R.string.game_status_pick_two)
             }
         }
     }
@@ -232,14 +193,8 @@ class GameActivity : AppCompatActivity() {
     /** 重置游戏：模型重新发牌，界面全部重置。 */
     private fun restartGame() {
         locked = false
-        game.restart()
-        for (i in cardViews.indices) {
-            val card = game.cardAtIndex(i)
-            val view = cardViews[i]
-            view.animate().cancel()
-            view.bind(card.suitString(), card.rankString(), card.isRedSuit())
-            view.render(false, false, false)
-        }
+        game.reset()
+        adapter.submitCards(cardsOfGame())
         refresh()
         tvStatus.text = getString(R.string.game_status_restart)
     }

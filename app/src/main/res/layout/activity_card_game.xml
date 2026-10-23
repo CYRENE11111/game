@@ -52,19 +52,21 @@
             android:textAppearance="?attr/textAppearanceLabelMedium"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
-            tools:text="剩余 16 张" />
+            tools:text="剩余 24 张" />
     </LinearLayout>
 
-    <!-- 牌阵：4 列 × 4 行，由 CardBoardView 自动排布并居中 -->
-    <com.example.exp4.view.CardBoardView
-        android:id="@+id/board"
+    <!-- 牌阵：由 RecyclerView + CardAdapter 实现，竖屏 4 列 × 6 行共 24 张牌 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCards"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="10dp"
-        android:layout_weight="1" />
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="4dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
 
     <!-- 得分 -->
     <LinearLayout

@@ -159,6 +159,14 @@ class CardView @JvmOverloads constructor(
             .start()
     }
 
+    /**
+     * 在 RecyclerView 网格中始终按正方形显示：高度跟随宽度。
+     */
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val side = MeasureSpec.getSize(widthMeasureSpec).coerceAtLeast(1)
+        setMeasuredDimension(side, side)
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         backRect.set(0, 0, w, h)

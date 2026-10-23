@@ -17,6 +17,12 @@
     <string name="btn_edit_info">修改个人信息</string>
     <string name="btn_play_game">翻牌游戏</string>
 
+    <!-- 主界面菜单与关于对话框 -->
+    <string name="menu_about">关于</string>
+    <string name="about_title">关于本应用</string>
+    <string name="about_message">版本：%1$s&#10;作者：%2$s&#10;学号：%3$s&#10;&#10;本应用是一款使用 RecyclerView 实现的翻牌配对游戏：翻开三张点数相同的牌即可配对成功。&#10;&#10;竖屏为 24 张牌（4 列 × 6 行），横屏为 18 张牌（6 列 × 3 行）。</string>
+    <string name="btn_ok">确定</string>
+
     <!-- 信息修改界面 -->
     <string name="form_title">信息修改</string>
     <string name="hint_name">请输入姓名</string>
@@ -44,10 +50,11 @@
     <string name="btn_restart">重置游戏</string>
     <string name="btn_exit">退出</string>
     <string name="remaining_value">剩余 %1$d 张</string>
-    <string name="game_tip">点击卡牌翻开，点数相同的两张牌即可配对成功。配对成功 +16 分，配对失败 -2 分，每翻一张牌 -1 分。</string>
+    <string name="game_tip">点击卡牌翻开，三张点数相同的牌即可配对成功。配对成功 +16 分，配对失败 -2 分，每翻一张牌 -1 分。竖屏为 24 张牌，横屏为 18 张牌。</string>
     <string name="game_status_ready">点击任意一张牌开始游戏</string>
-    <string name="game_status_pick_one">已翻开一张牌，请再选一张进行配对</string>
-    <string name="game_status_matched">配对成功！</string>
+    <string name="game_status_pick_one">已翻开 1 张牌，请再选 2 张进行配对</string>
+    <string name="game_status_pick_two">已翻开 2 张牌，请再选 1 张进行配对</string>
+    <string name="game_status_matched">三张牌配对成功！</string>
     <string name="game_status_mismatch">配对失败，请重新选择</string>
     <string name="game_status_win">全部配对完成，本局得分 %1$d 分</string>
     <string name="game_status_win_record">全部配对完成，本局得分 %1$d 分，刷新了最高分！</string>
