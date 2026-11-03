@@ -5,15 +5,20 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 
 /**
- * 游戏模型的单元测试：验证三张同点数的发牌、配对、计分与重置。
+ * 游戏模型的单元测试：验证配对发牌、配对、计分、重置与序列化恢复。
  *
- * 竖屏使用 4 列 × 6 行共 24 张牌（8 组三张同点数）。
+ * 三张牌玩法使用 24 张牌（8 组三张同点数），两张牌玩法使用 16 张牌（8 组两张同点数）。
  */
 class CardMatchingGameTest {
 
-    /** 与竖屏资源 game_card_count 保持一致。 */
+    /** 与竖屏资源 game_three_card_count 保持一致。 */
     private val cardCount = 24
 
     /** 找出三张点数相同的牌的索引。 */
@@ -131,5 +136,62 @@ class CardMatchingGameTest {
         assertEquals(0, game.chosenCardCount())
         assertEquals(cardCount, game.unmatchedCount())
         assertFalse(game.isGameOver())
+    }
+
+    /** 2 张牌玩法：16 张牌分成 8 组两张同点数，全部配对可得 112 分。 */
+    @Test
+    fun pairGame_perfectPlayFinishesTheGame() {
+        repeat(20) {
+            val game = CardMatchingGame(16, 2)
+            assertEquals(2, game.groupSize)
+            assertEquals(16, game.cardCount)
+
+            while (!game.isGameOver()) {
+                val first = (0 until game.cardCount).first { !game.cardAtIndex(it).isMatched }
+                val second = (first + 1 until game.cardCount).first {
+                    val card = game.cardAtIndex(it)
+                    !card.isMatched && card.rankString() == game.cardAtIndex(first).rankString()
+                }
+                game.chooseCardAtIndex(first)
+                game.chooseCardAtIndex(second)
+                assertTrue(game.cardAtIndex(first).isMatched)
+                assertTrue(game.cardAtIndex(second).isMatched)
+            }
+
+            // 8 组 × 16 分 - 16 张牌 × 1 分 = 112 分
+            assertEquals(112, game.score)
+        }
+    }
+
+    /** 游戏对象通过对象流序列化再反序列化后，进度应完全一致（对应文件存储）。 */
+    @Test
+    fun game_serializationRoundTrip_restoresProgress() {
+        val game = CardMatchingGame(cardCount, 3)
+        game.chooseCardAtIndex(0)
+
+        val restored = serializeAndBack(game)
+
+        assertEquals(game.score, restored.score)
+        assertEquals(game.cardCount, restored.cardCount)
+        assertEquals(game.groupSize, restored.groupSize)
+        assertEquals(game.chosenCardCount(), restored.chosenCardCount())
+        assertEquals(game.unmatchedCount(), restored.unmatchedCount())
+        for (i in 0 until game.cardCount) {
+            val original = game.cardAtIndex(i)
+            val copy = restored.cardAtIndex(i)
+            assertEquals(original.suitString(), copy.suitString())
+            assertEquals(original.rankString(), copy.rankString())
+            assertEquals(original.isChosen, copy.isChosen)
+            assertEquals(original.isMatched, copy.isMatched)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Serializable> serializeAndBack(value: T): T {
+        val bytes = ByteArrayOutputStream().use { bos ->
+            ObjectOutputStream(bos).use { it.writeObject(value) }
+            bos.toByteArray()
+        }
+        return ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as T }
     }
 }

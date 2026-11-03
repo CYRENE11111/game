@@ -2,8 +2,13 @@
 <resources>
     <string name="app_name">李飞乐2024110516</string>
 
-    <!-- 主界面 -->
-    <string name="main_subtitle">Android 实验四 · 翻牌配对游戏</string>
+    <!-- 底部导航：三个 Fragment -->
+    <string name="tab_profile">个人信息</string>
+    <string name="tab_game_two">2 张牌</string>
+    <string name="tab_game_three">3 张牌</string>
+
+    <!-- 个人信息 Fragment -->
+    <string name="main_subtitle">Fragment 版 · 翻牌配对游戏</string>
     <string name="welcome_player">你好，%1$s</string>
     <string name="label_name">姓名：</string>
     <string name="label_gender">性别：</string>
@@ -15,15 +20,15 @@
     <string name="label_avatar">头像</string>
     <string name="high_score_value">%1$d 分</string>
     <string name="btn_edit_info">修改个人信息</string>
-    <string name="btn_play_game">翻牌游戏</string>
+    <string name="profile_tip">个人信息与游戏进度都会序列化保存到应用私有文件，退出程序后重新打开会自动恢复。</string>
 
     <!-- 主界面菜单与关于对话框 -->
     <string name="menu_about">关于</string>
     <string name="about_title">关于本应用</string>
-    <string name="about_message">版本：%1$s&#10;作者：%2$s&#10;学号：%3$s&#10;&#10;本应用是一款使用 RecyclerView 实现的翻牌配对游戏：翻开三张点数相同的牌即可配对成功。&#10;&#10;竖屏为 24 张牌（4 列 × 6 行），横屏为 18 张牌（6 列 × 3 行）。</string>
+    <string name="about_message">版本：%1$s&#10;作者：%2$s&#10;学号：%3$s&#10;&#10;本应用使用 Fragment 实现三个页面：个人信息、2 张牌翻牌游戏和 3 张牌翻牌游戏。个人信息与游戏进度通过 ObjectOutputStream / ObjectInputStream 序列化保存到应用私有文件，退出程序后重新打开即可恢复。</string>
     <string name="btn_ok">确定</string>
 
-    <!-- 信息修改界面 -->
+    <!-- 信息修改 -->
     <string name="form_title">信息修改</string>
     <string name="hint_name">请输入姓名</string>
     <string name="hint_student_id">请输入学号</string>
@@ -41,22 +46,23 @@
     <string name="toast_student_id_empty">学号不能为空</string>
     <string name="toast_phone_invalid">请输入正确的手机号</string>
     <string name="toast_email_invalid">请输入正确的电子邮箱地址</string>
-    <string name="toast_saved">个人信息已修改</string>
+    <string name="toast_saved">个人信息已保存</string>
+    <string name="toast_save_failed">个人信息保存失败</string>
 
-    <!-- 翻牌游戏界面 -->
-    <string name="game_title">翻牌游戏</string>
+    <!-- 翻牌游戏 Fragment -->
     <string name="label_score">得分：</string>
     <string name="label_best">最高分 %1$d</string>
     <string name="btn_restart">重置游戏</string>
-    <string name="btn_exit">退出</string>
+    <string name="btn_save_progress">保存进度</string>
     <string name="remaining_value">剩余 %1$d 张</string>
-    <string name="game_tip">点击卡牌翻开，三张点数相同的牌即可配对成功。配对成功 +16 分，配对失败 -2 分，每翻一张牌 -1 分。竖屏为 24 张牌，横屏为 18 张牌。</string>
     <string name="game_status_ready">点击任意一张牌开始游戏</string>
-    <string name="game_status_pick_one">已翻开 1 张牌，请再选 2 张进行配对</string>
-    <string name="game_status_pick_two">已翻开 2 张牌，请再选 1 张进行配对</string>
-    <string name="game_status_matched">三张牌配对成功！</string>
+    <string name="game_status_pick_more">已翻开 %1$d 张牌，请再选 %2$d 张进行配对</string>
+    <string name="game_status_matched">配对成功！</string>
     <string name="game_status_mismatch">配对失败，请重新选择</string>
     <string name="game_status_win">全部配对完成，本局得分 %1$d 分</string>
     <string name="game_status_win_record">全部配对完成，本局得分 %1$d 分，刷新了最高分！</string>
     <string name="game_status_restart">已重新开始一局游戏</string>
+    <string name="game_status_restored">已恢复上次保存的游戏进度（%1$s）</string>
+    <string name="toast_game_saved">游戏进度已保存</string>
+    <string name="toast_game_save_failed">游戏进度保存失败</string>
 </resources>

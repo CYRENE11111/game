@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Exp4">
 
-        <!-- 主 Activity：显示玩家基本信息 -->
+        <!-- 唯一的 Activity：承载三个 Fragment（个人信息、2 张牌游戏、3 张牌游戏） -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,21 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- 二级 Activity：修改个人信息 -->
-        <activity
-            android:name=".EditInfoActivity"
-            android:exported="false"
-            android:label="@string/form_title"
-            android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- 二级 Activity：翻牌游戏 -->
-        <activity
-            android:name=".GameActivity"
-            android:exported="false"
-            android:label="@string/game_title"
-            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

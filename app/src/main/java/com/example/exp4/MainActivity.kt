@@ -1,39 +1,43 @@
 package com.example.exp4
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.exp4.model.Player
-import com.example.exp4.model.PlayerRepository
+import androidx.fragment.app.Fragment
+import com.example.exp4.storage.PlayerRepository
+import com.example.exp4.ui.ProfileFragment
+import com.example.exp4.ui.ThreeCardGameFragment
+import com.example.exp4.ui.TwoCardGameFragment
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
- * 主 Activity：显示当前玩家的基本信息
- * （头像、姓名、性别、学号、电话、邮件地址、爱好、游戏最高分），
- * 并提供进入“信息修改”和“翻牌游戏”两个二级 Activity 的入口；
- * 顶部菜单中的“关于”项会弹出关于对话框。
+ * 主 Activity：只负责承载工具栏与 Fragment 容器。
+ *
+ * 三个页面均由 Fragment 实现，通过底部导航切换：
+ * 1. [ProfileFragment]        个人信息；
+ * 2. [TwoCardGameFragment]    2 张牌的翻牌游戏；
+ * 3. [ThreeCardGameFragment]  3 张牌的翻牌游戏。
+ *
+ * 启动时会从应用私有文件恢复个人信息，游戏 Fragment 在创建时各自恢复游戏进度。
  */
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvWelcome: TextView
-    private lateinit var tvInfoName: TextView
-    private lateinit var tvInfoGender: TextView
-    private lateinit var tvInfoStudentId: TextView
-    private lateinit var tvInfoPhone: TextView
-    private lateinit var tvInfoEmail: TextView
-    private lateinit var tvInfoHobbies: TextView
-    private lateinit var tvInfoHighScore: TextView
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 在创建 Fragment 视图之前先恢复玩家信息，保证首次显示的就是文件中的历史数据
+        PlayerRepository.load(this)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
@@ -43,33 +47,78 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // 顶部工具栏 + 菜单（关于）
-        setSupportActionBar(findViewById<MaterialToolbar>(R.id.toolbar))
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        bottomNav = findViewById(R.id.bottomNav)
 
-        tvWelcome = findViewById(R.id.tvWelcome)
-        tvInfoName = findViewById(R.id.tvInfoName)
-        tvInfoGender = findViewById(R.id.tvInfoGender)
-        tvInfoStudentId = findViewById(R.id.tvInfoStudentId)
-        tvInfoPhone = findViewById(R.id.tvInfoPhone)
-        tvInfoEmail = findViewById(R.id.tvInfoEmail)
-        tvInfoHobbies = findViewById(R.id.tvInfoHobbies)
-        tvInfoHighScore = findViewById(R.id.tvInfoHighScore)
-
-        // 修改个人信息
-        findViewById<View>(R.id.btnEdit).setOnClickListener {
-            startActivity(Intent(this, EditInfoActivity::class.java))
+        val tab = savedInstanceState?.getInt(KEY_TAB, R.id.nav_profile) ?: R.id.nav_profile
+        if (savedInstanceState == null) {
+            showTab(tab)
+            bottomNav.selectedItemId = tab
+        } else {
+            // 旋转屏幕后 FragmentManager 已恢复 Fragment，这里只同步底部选中状态与标题
+            bottomNav.selectedItemId = tab
+            updateSubtitle(tab)
         }
 
-        // 进入翻牌游戏
-        findViewById<View>(R.id.btnPlay).setOnClickListener {
-            startActivity(Intent(this, GameActivity::class.java))
+        // 初始化完成后再注册监听，避免恢复状态时重复创建 Fragment
+        bottomNav.setOnItemSelectedListener { item ->
+            showTab(item.itemId)
+            true
         }
+
+        // 在游戏页按返回键时先回到个人信息页
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (bottomNav.selectedItemId != R.id.nav_profile) {
+                    bottomNav.selectedItemId = R.id.nav_profile
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 从“信息修改”或游戏界面返回时，刷新显示的基本信息
-        showPlayer(PlayerRepository.player)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_TAB, bottomNav.selectedItemId)
+    }
+
+    /** 切换到指定标签对应的 Fragment；标签相同时不重复创建。 */
+    private fun showTab(itemId: Int) {
+        updateSubtitle(itemId)
+        val tag = tagOf(itemId) ?: return
+        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.tag == tag) {
+            return
+        }
+
+        val fragment: Fragment = when (itemId) {
+            R.id.nav_profile -> ProfileFragment()
+            R.id.nav_game_two -> TwoCardGameFragment()
+            R.id.nav_game_three -> ThreeCardGameFragment()
+            else -> return
+        }
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment, tag)
+            .commitNow()
+    }
+
+    private fun tagOf(itemId: Int): String? = when (itemId) {
+        R.id.nav_profile -> TAG_PROFILE
+        R.id.nav_game_two -> TAG_GAME_TWO
+        R.id.nav_game_three -> TAG_GAME_THREE
+        else -> null
+    }
+
+    private fun updateSubtitle(itemId: Int) {
+        toolbar.subtitle = when (itemId) {
+            R.id.nav_profile -> getString(R.string.tab_profile)
+            R.id.nav_game_two -> getString(R.string.tab_game_two)
+            R.id.nav_game_three -> getString(R.string.tab_game_three)
+            else -> null
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -109,14 +158,10 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun showPlayer(player: Player) {
-        tvWelcome.text = getString(R.string.welcome_player, player.name)
-        tvInfoName.text = player.name
-        tvInfoGender.text = player.gender
-        tvInfoStudentId.text = player.studentId
-        tvInfoPhone.text = player.phone
-        tvInfoEmail.text = player.email
-        tvInfoHobbies.text = player.hobbies
-        tvInfoHighScore.text = getString(R.string.high_score_value, player.highScore)
+    companion object {
+        private const val KEY_TAB = "selected_tab"
+        private const val TAG_PROFILE = "profile"
+        private const val TAG_GAME_TWO = "game_two"
+        private const val TAG_GAME_THREE = "game_three"
     }
 }

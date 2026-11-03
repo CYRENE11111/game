@@ -12,13 +12,13 @@ import com.example.exp4.model.Card
  * 职责：
  * 1. 创建 / 复用卡牌 ViewHolder（[CardViewHolder]）；
  * 2. 根据模型状态显示牌面、选中高亮、配对完成效果；
- * 3. 把用户对卡牌的点击通过 [OnCardClickListener] 回调给控制器（Activity）。
+ * 3. 把用户对卡牌的点击通过 [OnCardClickListener] 回调给控制器（GameFragment）。
  */
 class CardAdapter(
     private val listener: OnCardClickListener
 ) : RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
 
-    /** 卡牌点击回调，由控制器（GameActivity）实现。 */
+    /** 卡牌点击回调，由控制器（GameFragment）实现。 */
     interface OnCardClickListener {
         fun onCardClicked(position: Int)
     }

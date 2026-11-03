@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 横屏：6 列 × 3 行，共 18 张牌（6 组三张同点数） -->
-    <integer name="game_card_count">18</integer>
-    <integer name="game_card_columns">6</integer>
+    <!-- 横屏使用 8 列，配合右侧控制面板排布牌阵 -->
+    <integer name="game_two_card_columns">8</integer>
+    <integer name="game_three_card_columns">8</integer>
 </resources>

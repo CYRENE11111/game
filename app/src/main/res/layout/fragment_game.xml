@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 翻牌游戏 Fragment（竖屏）：状态提示 + 牌阵 + 得分 + 操作按钮 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/gameRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
     android:orientation="vertical"
-    tools:context=".GameActivity"
     tools:ignore="Overdraw">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbarGame"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:title="@string/game_title"
-        app:titleTextColor="?attr/colorOnPrimary" />
 
     <!-- 状态提示 -->
     <LinearLayout
@@ -52,10 +43,10 @@
             android:textAppearance="?attr/textAppearanceLabelMedium"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
-            tools:text="剩余 24 张" />
+            tools:text="剩余 16 张" />
     </LinearLayout>
 
-    <!-- 牌阵：由 RecyclerView + CardAdapter 实现，竖屏 4 列 × 6 行共 24 张牌 -->
+    <!-- 牌阵：由 RecyclerView + CardAdapter 实现 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCards"
         android:layout_width="match_parent"
@@ -105,7 +96,7 @@
             tools:text="最高分 0" />
     </LinearLayout>
 
-    <!-- 重置游戏 / 退出 -->
+    <!-- 重置游戏 / 保存进度 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -126,14 +117,14 @@
             android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnExit"
+            android:id="@+id/btnSave"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:minHeight="52dp"
-            android:text="@string/btn_exit"
+            android:text="@string/btn_save_progress"
             android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>
